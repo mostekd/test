@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Katalog Smaków ELFLIQ</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                    colors: {
+                        elfbg: '#0a0011',
+                        elfcard: '#160524',
+                        elfborder: '#2c1247',
+                        elfgreen: '#bdff00',
+                        elfgreenhover: '#a0d600',
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            background-color: theme('colors.elfbg');
+            color: #e2e8f0;
+        }
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: theme('colors.elfbg');
+        }
+        ::-webkit-scrollbar-thumb {
+            background: theme('colors.elfborder');
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: theme('colors.elfgreen');
+        }
+        .card-enter {
+            animation: fade-in-up 0.3s ease-out forwards;
+        }
+        @keyframes fade-in-up {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col font-sans antialiased selection:bg-elfgreen selection:text-black">
+
+    <header class="sticky top-0 z-50 bg-elfbg/90 backdrop-blur-md border-b border-elfborder p-6 shadow-2xl">
+        <div class="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-full bg-elfgreen flex items-center justify-center text-elfbg font-bold text-xl shadow-[0_0_15px_rgba(189,255,0,0.4)]">
+                    E
+                </div>
+                <h1 class="text-2xl md:text-3xl font-bold tracking-tight text-white">
+                    Katalog <span class="text-elfgreen">ELFLIQ</span>
+                </h1>
+            </div>
+
+            <div class="w-full md:w-96 relative group">
+                <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-gray-500 group-focus-within:text-elfgreen transition-colors">
+                    <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                    </svg>
+                </div>
+                <input 
+                    type="text" 
+                    id="searchInput" 
+                    placeholder="Szukaj smaku (np. Blueberry, Ice)..." 
+                    class="w-full bg-elfcard border-2 border-elfborder text-white rounded-2xl py-3 pl-11 pr-4 focus:outline-none focus:border-elfgreen focus:ring-1 focus:ring-elfgreen transition-all shadow-inner placeholder-gray-500"
+                >
+            </div>
+        </div>
+    </header>
+
+    <main class="flex-grow p-6 w-full max-w-7xl mx-auto">
+        
+        <!-- Pusty stan (brak wyników) -->
+        <div id="noResults" class="hidden flex-col items-center justify-center py-20 text-center">
+            <svg class="w-16 h-16 text-elfborder mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            <h2 class="text-xl font-semibold text-gray-300">Brak smaków spełniających kryteria</h2>
+            <p class="text-gray-500 mt-2">Spróbuj wpisać inną nazwę.</p>
+        </div>
+
+        <!-- Siatka kart -->
+        <div id="gridContainer" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            <!-- Karty będą renderowane tutaj przez JavaScript -->
+        </div>
+
+    </main>
+
+    <footer class="mt-auto border-t border-elfborder py-8 text-center text-gray-500 text-sm">
+        <p>&copy; 2026 Katalog Smaków. Wszelkie prawa zastrzeżone.</p>
+    </footer>
+
+    <script>
+        const flavors = [
+            { name: "Apple Peach", desc: "Połączenie smaku słodkiego jabłka i dojrzałej brzoskwini." },
+            { name: "Apple Pear", desc: "Kompozycja owocowa łącząca świeże jabłko ze słodką gruszką." },
+            { name: "Blackberry Lemon", desc: "Smak ciemnej jeżyny z dodatkiem kwaskowej cytryny." },
+            { name: "Blackcurrant Menthol", desc: "Intensywna czarna porzeczka z chłodzącym, mentolowym finiszem." },
+            { name: "Blubberry", desc: "Klasyczny smak borówki lub jagody." },
+            { name: "Blue Razz Cherry", desc: "Mieszanka słodko-kwaśnej niebieskiej maliny i wiśni." },
+            { name: "Blue Razz Ice", desc: "Orzeźwiająca niebieska malina z mocnym, lodowym akcentem." },
+            { name: "Blue Razz Lemonade", desc: "Klasyczna lemoniada z dodatkiem słodko-kwaśnej niebieskiej maliny." },
+            { name: "Blueberry Cherry Cranberry", desc: "Owocowy mix składający się z borówki, wiśni oraz cierpkiej żurawiny." },
+            { name: "Blueberry Raspberry Pomegranate", desc: "Borówka i malina połączone z lekko cierpkim, egzotycznym owocem granatu." },
+            { name: "Blueberry Rose Mint", desc: "Unikalne połączenie borówki, subtelnego aromatu róży oraz odświeżającej mięty." },
+            { name: "Blueberry Sour Raspberry", desc: "Borówka przełamana intensywnie kwaśną maliną." },
+            { name: "Cherry", desc: "Czysty, klasyczny smak dojrzałej wiśni." },
+            { name: "Cherry Cola", desc: "Smak słodkiego napoju typu cola z wyraźnym wiśniowym dodatkiem." },
+            { name: "Cherry Lemon Peach", desc: "Kompozycja owocowa łącząca wiśnię, cytrynę i słodką brzoskwinię." },
+            { name: "Cherry Sour Raspberry", desc: "Wiśnia skomponowana z mocno kwaśną maliną." },
+            { name: "Cola", desc: "Rozpoznawalny smak popularnego napoju gazowanego typu cola." },
+            { name: "Cool Mint", desc: "Odświeżający i mocno chłodny smak czystej mięty." },
+            { name: "Cuba Tobacco", desc: "Klasyczny, bogaty aromat tytoniu." },
+            { name: "Elf Jeck", desc: "Wieloowocowy smak w stylu żelek owocowych." },
+            { name: "ElfBull Ice", desc: "Smak popularnego napoju energetycznego przełamany intensywnym efektem chłodzenia." },
+            { name: "Fizzy Cherry", desc: "Musująca, lekko kwaskowa wiśnia przypominająca gazowany napój owocowy." },
+            { name: "Grape", desc: "Słodki i intensywny smak ciemnych winogron." },
+            { name: "Grape Cherry", desc: "Połączenie smaku ciemnych winogron ze słodką wiśnią." },
+            { name: "Jasmine Raspberry", desc: "Słodka malina z dodatkiem kwiatowego aromatu jaśminu." },
+            { name: "Kiwi Passion Fruit Guava", desc: "Egzotyczny, tropikalny mix kwaśnego kiwi, słodkiej marakui i gujawy." },
+            { name: "Lemon Lime", desc: "Cytrusowe uderzenie kwasowości cytryny zestawionej z orzeźwiającą limonką." },
+            
+            { name: "Lemon Sherbet", desc: "Musujący, słodko-kwaśny smak cytrynowego sorbetu lub landrynek." },
+            { name: "Mr. Blue", desc: "Złożona mieszanka leśnych jagód z wyraźnym, chłodnym anyżowo-mentolowym podbiciem." },
+            { name: "Ocean Mint", desc: "Świeży i rześki smak mięty dający mocny, chłodzący efekt." },
+            { name: "P&B Ckoudd", desc: "Smak słodkiej, puszystej waty cukrowej." },
+            { name: "Peach Ice", desc: "Słodka, soczysta brzoskwinia z dodatkiem orzeźwiającego lodu." },
+            { name: "Pina Colada", desc: "Klasyczny koktajl łączący smak słodkiego ananasa z kremowym kokosem." },
+            { name: "Pineapple Colada", desc: "Kremowe wydanie ananasa podkreślone nutami kokosowymi." },
+            { name: "Pineapple Ice", desc: "Tropikalny ananas z mocnym, lodowym finiszem." },
+            { name: "Pink Grapefruit", desc: "Słodko-gorzki i niezwykle orzeźwiający smak różowego grejpfruta." },
+            { name: "Pink Lemonade", desc: "Klasyczna, różowa lemoniada na bazie cytryny i czerwonych owoców." },
+            { name: "Pink Lemonade Soda", desc: "Wersja różowej lemoniady z dodatkiem mocno musujących, gazowanych nut napoju." },
+            { name: "Raspberry Lychee", desc: "Słodka malina zestawiona z delikatnym, egzotycznym owocem liczi." },
+            { name: "Rhubarb Snoow", desc: "Niespotykane połączenie lekko kwaskowego rabarbaru z gładką, kremową nutą." },
+            { name: "Snoow Tobacco", desc: "Aromat tytoniowy połączony z gładkim, kremowym i delikatnie chłodnym wykończeniem." },
+            { name: "Sour Apple", desc: "Mocno kwaśne i chrupkie zielone jabłko." },
+            { name: "Sour Watermelon Gummy", desc: "Smak słodko-kwaśnych, arbuzowych żelków." },
+            { name: "Spearmint", desc: "Słodka mięta przypominająca smak popularnych gum do żucia." },
+            { name: "Strawberry Banana", desc: "Gładki deserowy mix słodkiej truskawki i kremowego banana." },
+            { name: "Strawberry Cherry Lemon", desc: "Zrównoważona kompozycja truskawki, wiśni i cytryny." },
+            { name: "Strawberry Ice", desc: "Klasyczna, słodka truskawka z orzeźwiającym dodatkiem lodu." },
+            { name: "Strawberry Kiwi", desc: "Sprawdzone połączenie słodkiej truskawki z owocem kiwi." },
+            { name: "Strawberry Raspberry Cherry Ice", desc: "Potrójnie owocowy mix składający się z truskawki, maliny i wiśni, zwieńczony mocnym chłodzikiem." },
+            { name: "Strawberry Razz Lemonade", desc: "Lemoniada wzbogacona o słodkie nuty truskawki i niebieskiej maliny." },
+            { name: "Strawberry Snoow", desc: "Truskawka połączona z gładką, lodowo-kremową nutą." },
+            { name: "Strawberry Watermelon", desc: "Słodkie połączenie dojrzałej truskawki z soczystym i orzeźwiającym arbuzem." },
+            { name: "Very Menthol", desc: "Intensywny, mocno chłodzący i odświeżający smak czystego mentolu." },
+            { name: "Watermelon", desc: "Klasyczny, słodki i rześki smak arbuza." },
+            { name: "Watermelon Cherry", desc: "Orzeźwiający arbuz skomponowany z wyrazistym smakiem dojrzałej wiśni." }
+        ];
+
+        const gridContainer = document.getElementById('gridContainer');
+        const searchInput = document.getElementById('searchInput');
+        const noResults = document.getElementById('noResults');
+
+        // Funkcja renderująca karty
+        function renderFlavors(data) {
+            gridContainer.innerHTML = ''; // Wyczyszczenie obecnych wyników
+
+            if (data.length === 0) {
+                gridContainer.classList.add('hidden');
+                noResults.classList.remove('hidden');
+                noResults.classList.add('flex');
+            } else {
+                gridContainer.classList.remove('hidden');
+                noResults.classList.add('hidden');
+                noResults.classList.remove('flex');
+
+                data.forEach((flavor, index) => {
+                    // Obliczanie opóźnienia animacji dla efektu kaskadowego ładowania
+                    const delay = (index % 12) * 0.05; 
+
+                    const card = document.createElement('div');
+                    card.className = `bg-elfcard rounded-2xl p-6 border border-elfborder hover:border-elfgreen hover:-translate-y-1 transition-all duration-300 shadow-lg hover:shadow-[0_10px_20px_-10px_rgba(189,255,0,0.3)] group relative overflow-hidden card-enter`;
+                    card.style.animationDelay = `${delay}s`;
+                    
+                    // Efekt "poświaty" przy krawędzi
+                    const glow = document.createElement('div');
+                    glow.className = 'absolute top-0 left-0 w-1 bg-elfgreen h-0 group-hover:h-full transition-all duration-300';
+                    card.appendChild(glow);
+
+                    const title = document.createElement('h3');
+                    title.className = 'text-xl font-bold text-white mb-3 group-hover:text-elfgreen transition-colors flex justify-between items-start';
+                    title.innerHTML = `${flavor.name} <svg class="w-5 h-5 opacity-0 group-hover:opacity-100 transform translate-x-[-10px] group-hover:translate-x-0 transition-all text-elfgreen" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>`;
+
+                    const desc = document.createElement('p');
+                    desc.className = 'text-gray-400 text-sm leading-relaxed';
+                    desc.textContent = flavor.desc;
+
+                    card.appendChild(title);
+                    card.appendChild(desc);
+                    
+                    gridContainer.appendChild(card);
+                });
+            }
+        }
+
+        // Nasłuchiwanie zmian w polu wyszukiwania
+        searchInput.addEventListener('input', (e) => {
+            const searchTerm = e.target.value.toLowerCase().trim();
+            
+            // Filtrowanie tablicy po nazwie smaku
+            const filteredFlavors = flavors.filter(flavor => 
+                flavor.name.toLowerCase().includes(searchTerm)
+            );
+            
+            renderFlavors(filteredFlavors);
+        });
+
+        // Wstępne wygenerowanie wszystkich kart po załadowaniu strony
+        document.addEventListener('DOMContentLoaded', () => {
+            renderFlavors(flavors);
+        });
+    </script>
+</body>
+</html>
